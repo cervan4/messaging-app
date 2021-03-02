@@ -22,11 +22,10 @@ export default class CreateUser extends Component {
         getusersdata = () => {
             axios.get('http://localhost:5000/users/')
                 .then((response) =>{
-                    const Email = response.email;
-                    const Username = response.username;
-                    const Password = response.password;
+                    const Email = response.data[0].email;
+                    const Username = response.data[0].username;
+                    const Password = response.data[0].password;
                     this.setState({username:Username,email:Email,password:Password});
-                    console.log('Data has been received')
                 })
                 .catch(() => {
                     alert('Error when getting data')
@@ -48,21 +47,21 @@ export default class CreateUser extends Component {
         })
     }
     onSubmit(e) {
-    e.preventDefault();
-    const user = {
-        username: this.state.username,
-        email: this.state.email,
-        password: this.state.password,
+        e.preventDefault();
+        const user = {
+            username: this.state.username,
+            email: this.state.email,
+            password: this.state.password,
+        }
+        console.log(user);
+        axios.post('http://localhost:5000/users/add',user)
+            .then(res => console.log(res.data));
+        this.setState({
+            username: '',
+            email: '',
+            password: ''
+        })
     }
-    console.log(user);
-    axios.post('http://localhost:5000/users/add',user)
-        .then(res => console.log(res.data));
-    this.setState({
-        username: '',
-        email: '',
-        password: ''
-    })
-}
     displayUserData = (users) => {
         if(!users.length) return null;
             return users.map((user, index) => (
