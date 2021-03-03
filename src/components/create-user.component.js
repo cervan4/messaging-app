@@ -6,12 +6,16 @@ export default class CreateUser extends Component {
         this.onChangeUsername = this.onChangeUsername.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
+        this.onChangeuser = this.onChangeuser.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.ontest = this.ontest.bind(this);
 
         this.state = {
             email : '',
             username : '',
             password : '',
+            user : '',
+            submited : false,
             users: [],
         }
     }
@@ -25,7 +29,7 @@ export default class CreateUser extends Component {
                     const Email = response.data[0].email;
                     const Username = response.data[0].username;
                     const Password = response.data[0].password;
-                    this.setState({username:Username,email:Email,password:Password});
+                    this.setState({username:Username,email:Email,password:Password, users:response.data});
                 })
                 .catch(() => {
                     alert('Error when getting data')
@@ -46,6 +50,13 @@ export default class CreateUser extends Component {
             password: e.target.value
         })
     }
+
+    onChangeuser(e) {
+        e.preventDefault();
+        this.setState({
+            user: e.target.value
+        })
+    }
     onSubmit(e) {
         e.preventDefault();
         const user = {
@@ -62,22 +73,37 @@ export default class CreateUser extends Component {
             password: ''
         })
     }
+    ontest(e) {
+        e.preventDefault();
+        this.setState({
+            submited: true
+        })
+        /*
+    window.alert(this.state.user)
+    this.state.users.filter(user => 
+        user.username.includes(this.state.user)).map(searchedusers => {
+          return(
+            <tr key={searchedusers.username}>
+              <td>{searchedusers.email}</td>
+              <td>{searchedusers.password}</td>
+            </tr>
+          );
+        })
+       */ 
+    }
     displayUserData = (users) => {
         if(!users.length) return null;
             return users.map((user, index) => (
-                <div key = {index}>
-                    <h3>user.email</h3>
-                    <h3>user.username</h3>
-                    <h3>user.password</h3>
+                <div key = {index} className = "user__display">
+                    <h3>{user.email}</h3>
+                    <h3>{user.username}</h3>
+                    <h3>{user.password}</h3>
                 </div>
             ));
     };
     render() {
         return( 
             <div>
-          <div className = "Users-list">
-              {this.displayUserData(this.state.users)}
-          </div>
                 <h3>Create New User</h3>
         <form onSubmit={this.onSubmit}>
           <div className="form-group"> 
@@ -107,7 +133,36 @@ export default class CreateUser extends Component {
             <input type="submit" value="Create User" className="btn btn-primary" />
           </div>
         </form>
+        <form onSubmit={this.ontest}>
+            <label>getuser: </label>
+            <input  type="text"
+                required
+                className="form-control"
+                value={this.state.user}
+                onChange={this.onChangeuser}
+                />
+          <div className="form-group">
+            <input type="submit" value="get user" className="test" />
             </div>
+                </form>
+            <div>
+
+   { this.state.submited ? 
+   this.state.users.filter(user => 
+        user.username === this.state.user).map(searchedusers => {
+          return(
+            <tr key={searchedusers.username}>
+              <td>{searchedusers.email}</td>
+              <td>{searchedusers.password}</td>
+            </tr>
+          );
+        })
+        :<div>
+
+            </div>
+    }
+            </div>
+                </div>
         )
     }
 }

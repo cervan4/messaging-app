@@ -1,6 +1,6 @@
 import './App.css';
 import {BrowserRouter as Router, Route} from "react-router-dom";
-//import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/css/bootstrap.min.css"
 import Navbar from "./components/navbar.component";
 //import login from "./components/login.component";
 //<Route path = "/" exact component = {login} />

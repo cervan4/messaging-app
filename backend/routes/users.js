@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { request } = require('express');
 let User = require('../models/user.model');
 
 router.route('/').get((req, res) => {
@@ -7,6 +8,11 @@ router.route('/').get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/:username').get((req, res) => {
+  User.findOne({username:req.params.username})
+    .then(users => res.json(users))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
 router.route('/add').post((req, res) => {
   const email = req.body.email;
   const username = req.body.username;
