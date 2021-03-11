@@ -1,17 +1,14 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-export default class CreateUser extends Component {
+export default class Login extends Component {
     constructor(props){
         super(props);
         this.onChangeUsername = this.onChangeUsername.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
-        this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangeuser = this.onChangeuser.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
         this.ontest = this.ontest.bind(this);
 
         this.state = {
-            email : '',
             username : '',
             password : '',
             user : '',
@@ -26,9 +23,6 @@ export default class CreateUser extends Component {
         getusersdata = () => {
             axios.get('http://localhost:5000/users/')
                 .then((response) =>{
-                    const Email = response.data[0].email;
-                    const Username = response.data[0].username;
-                    const Password = response.data[0].password;
                     this.setState({users:response.data});
                 })
                 .catch(() => {
@@ -39,11 +33,6 @@ export default class CreateUser extends Component {
         this.setState({
             username: e.target.value,
         });
-    }
-    onChangeEmail(e) {
-        this.setState({
-            email: e.target.value,
-        })
     }
     onChangePassword(e) {
         this.setState({
@@ -57,40 +46,13 @@ export default class CreateUser extends Component {
             user: e.target.value
         })
     }
-    onSubmit(e) {
-        e.preventDefault();
-        const user = {
-            username: this.state.username,
-            email: this.state.email,
-            password: this.state.password,
-        }
-        console.log(user);
-        axios.post('http://localhost:5000/users/add',user)
-            .then(res => console.log(res.data));
-        this.setState({
-            username: '',
-            email: '',
-            password: ''
-        })
-    }
+   
     ontest(e) {
         e.preventDefault();
         this.setState({
             submited: true
         })
-        /*
-    window.alert(this.state.user)
-    this.state.users.filter(user => 
-        user.username.includes(this.state.user)).map(searchedusers => {
-          return(
-            <tr key={searchedusers.username}>
-              <td>{searchedusers.email}</td>
-              <td>{searchedusers.password}</td>
-            </tr>
-          );
-        })
-       */ 
-    }
+      }
     displayUserData = (users) => {
         if(!users.length) return null;
             return users.map((user, index) => (
@@ -104,35 +66,44 @@ export default class CreateUser extends Component {
     render() {
         return( 
             <div>
-                <h3>Create New User</h3>
-        <form onSubmit={this.onSubmit}>
-          <div className="form-group"> 
-            <label>Email: </label>
-            <input  type="text"
-                required
-                className="form-control"
-                value={this.state.email}
-                onChange={this.onChangeEmail}
-                />
+               
+        <form onSubmit={this.ontest}>
             <label>Username: </label>
             <input  type="text"
                 required
                 className="form-control"
-                value={this.state.username}
-                onChange={this.onChangeUsername}
+                value={this.state.user}
+                onChange={this.onChangeuser}
                 />
             <label>Password: </label>
-            <input  type="text"
+            <input  type="password"
                 required
                 className="form-control"
                 value={this.state.password}
                 onChange={this.onChangePassword}
                 />
-          </div>
           <div className="form-group">
-            <input type="submit" value="Create account" className="btn btn-primary" />
-          </div>
-        </form>
+            <input type="submit" value="Login" className="btn btn-primary" />
+            </div>
+                </form>
+
+            <div>
+
+   { this.state.submited ? 
+   this.state.users.filter(user => 
+        user.username === this.state.user && user.password === this.state.password).map(searchedusers => {
+          return(
+            <tr key={searchedusers.username}>
+              <td>{searchedusers.email}</td>
+              <td>{searchedusers.password}</td>
+            </tr>
+          );
+        })
+        :<div>
+
+            </div>
+    }
+            </div>
                 </div>
         )
     }
