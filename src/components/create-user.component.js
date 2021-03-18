@@ -1,139 +1,152 @@
-import React, {Component} from 'react';
-import axios from 'axios';
-export default class CreateUser extends Component {
-    constructor(props){
-        super(props);
-        this.onChangeUsername = this.onChangeUsername.bind(this);
-        this.onChangePassword = this.onChangePassword.bind(this);
-        this.onChangeEmail = this.onChangeEmail.bind(this);
-        this.onChangeuser = this.onChangeuser.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
-        this.ontest = this.ontest.bind(this);
 
-        this.state = {
-            email : '',
-            username : '',
-            password : '',
-            user : '',
-            submited : false,
-            users: [],
-        }
-    }
-    //This code is to be able to display data from the database to the screen 
-        componentDidMount = () => {
-            this.getusersdata();
-        };
-        getusersdata = () => {
-            axios.get('http://localhost:5000/users/')
-                .then((response) =>{
-                    const Email = response.data[0].email;
-                    const Username = response.data[0].username;
-                    const Password = response.data[0].password;
-                    this.setState({users:response.data});
-                })
-                .catch(() => {
-                    alert('Error when getting data')
-                })
-        }
-    onChangeUsername(e) {
-        this.setState({
-            username: e.target.value,
-        });
-    }
-    onChangeEmail(e) {
-        this.setState({
-            email: e.target.value,
-        })
-    }
-    onChangePassword(e) {
-        this.setState({
-            password: e.target.value
-        })
-    }
-
-    onChangeuser(e) {
-        e.preventDefault();
-        this.setState({
-            user: e.target.value
-        })
-    }
-    onSubmit(e) {
-        e.preventDefault();
-        const user = {
-            username: this.state.username,
-            email: this.state.email,
-            password: this.state.password,
-        }
-        console.log(user);
-        axios.post('http://localhost:5000/users/add',user)
-            .then(res => console.log(res.data));
-        this.setState({
-            username: '',
-            email: '',
-            password: ''
-        })
-    }
-    ontest(e) {
-        e.preventDefault();
-        this.setState({
-            submited: true
-        })
-        /*
-    window.alert(this.state.user)
-    this.state.users.filter(user => 
-        user.username.includes(this.state.user)).map(searchedusers => {
-          return(
-            <tr key={searchedusers.username}>
-              <td>{searchedusers.email}</td>
-              <td>{searchedusers.password}</td>
-            </tr>
-          );
-        })
-       */ 
-    }
-    displayUserData = (users) => {
-        if(!users.length) return null;
-            return users.map((user, index) => (
-                <div key = {index} className = "user__display">
-                    <h3>{user.email}</h3>
-                    <h3>{user.username}</h3>
-                    <h3>{user.password}</h3>
-                </div>
-            ));
+import React, { Component } from "react";
+import { Link, withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { registerUser } from "../actions/authActions";
+import classnames from "classnames";
+class Register extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: "",
+      email: "",
+      password: "",
+      password2: "",
+      errors: {}
     };
-    render() {
-        return( 
-            <div>
-                <h3>Create New User</h3>
-        <form onSubmit={this.onSubmit}>
-          <div className="form-group"> 
-            <label>Email: </label>
-            <input  type="text"
-                required
-                className="form-control"
-                value={this.state.email}
-                onChange={this.onChangeEmail}
-                />
-            <label>Username: </label>
-            <input  type="text"
-                required
-                className="form-control"
-                value={this.state.username}
-                onChange={this.onChangeUsername}
-                />
-            <label>Password: </label>
-            <input  type="text"
-                required
-                className="form-control"
-                value={this.state.password}
-                onChange={this.onChangePassword}
-                />
-          </div>
-          <div className="form-group">
-            <input type="submit" value="Create account" className="btn btn-primary" />
-          </div>
-        </form>
-                </div>
-        )
+  }
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
     }
+  }
+componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({
+        errors: nextProps.errors
+      });
+    }
+  }
+onChange = e => {
+    this.setState({ [e.target.id]: e.target.value });
+  };
+onSubmit = e => {
+    e.preventDefault();
+const newUser = {
+      username: this.state.username,
+      email: this.state.email,
+      password: this.state.password,
+      password2: this.state.password2
+    };
+this.props.registerUser(newUser, this.props.history); 
+  };
+render() {
+    const { errors } = this.state;
+return (
+      <div className="container">
+        <div className="row">
+          <div className="col s8 offset-s2">
+            <Link to="/" className="btn-flat waves-effect">
+              <i className="material-icons left">keyboard_backspace</i> Back to
+              home
+            </Link>
+            <div className="col s12" style={{ paddingLeft: "11.250px" }}>
+              <h4>
+                <b>Register</b> below
+              </h4>
+              <p className="grey-text text-darken-1">
+                Already have an account? <Link to="/login">Login</Link>
+              </p>
+            </div>
+            <form noValidate onSubmit={this.onSubmit}>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.username}
+                  error={errors.username}
+                  id="username"
+                  type="text"
+                  className={classnames("", {
+                    invalid: errors.username
+                  })}
+                />
+                <label htmlFor="Username">Username</label>
+                <span className="red-text">{errors.username}</span>
+              </div>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.email}
+                  error={errors.email}
+                  id="email"
+                  type="email"
+                  className={classnames("", {
+                    invalid: errors.email
+                  })}
+                />
+                <label htmlFor="email">Email</label>
+                <span className="red-text">{errors.email}</span>
+              </div>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.password}
+                  error={errors.password}
+                  id="password"
+                  type="password"
+                  className={classnames("", {
+                    invalid: errors.password
+                  })}
+                />
+                <label htmlFor="password">Password</label>
+                <span className="red-text">{errors.password}</span>
+              </div>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.password2}
+                  error={errors.password2}
+                  id="password2"
+                  type="password"
+                  className={classnames("", {
+                    invalid: errors.password2
+                  })}
+                />
+                <label htmlFor="password2">Confirm Password</label>
+                <span className="red-text">{errors.password2}</span>
+              </div>
+              <div className="col s12" style={{ paddingLeft: "11.250px" }}>
+                <button
+                  style={{
+                    width: "150px",
+                    borderRadius: "3px",
+                    letterSpacing: "1.5px",
+                    marginTop: "1rem"
+                  }}
+                  type="submit"
+                  className="btn btn-large waves-effect waves-light hoverable blue accent-3"
+                >
+                  Sign up
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors
+});
+export default connect(
+  mapStateToProps,
+  { registerUser }
+)(withRouter(Register));
